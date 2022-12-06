@@ -1,0 +1,38 @@
+
+lambda christmas tree
+```
+       λ  
+   λf.λz. z
+  λf.λz. f z
+ λf.λz. f f z
+λf.λz. f f f z
+       x
+```
+
+```rust
+
+true
+| T = (λx.λy.x) 1 2 -> 1
+
+false
+| F = (λx.λy.y) 1 2 -> 2
+
+if = (λb.λt.λf.btf)
+
+not = (λa.if a F T)
+| (λb.λt.λf.btf) a F T
+| ()
+
+and = (λab.if a b F)
+
+
+```
+
+```rust
+
+(λb.λt.λf.btf) true 1 2 -> 1
+= (λx.λy.x) 1 2 -> 1
+= (λx.x) 1 -> 1
+= x 1 -> 1
+
+```

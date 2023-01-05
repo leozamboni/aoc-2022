@@ -1,7 +1,11 @@
+```
+sbcl --script day-00/part.lisp
+```
 
 lambda christmas tree
+
 ```
-       λ  
+       λ
    λf.λz. z
   λf.λz. f z
  λf.λz. f f z

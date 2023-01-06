@@ -1,62 +1,69 @@
 (require :uiop)
 
-
 (defvar input 
   (uiop:read-file-lines "input.txt"))
 
-;; ("/" 0 ("a" 0 ("e" 0 (584))(29116)(2557)(62596))(14848514)(8504156)("d" 0))
+(defvar tree '("/"))
+(defvar aux_tree '("/"))
+(defvar last_tree)
 
-(defvar tree '("/" 0))
+(defvar last_index 0)
+(defvar dir_index 0)
 
-(defun parse-size (str) (let ((size "")) (
+(defun get-size (str) (let ((size "")) (
   loop for str_char across str do (
-    if (char-equal str_char #\.)
+    if (char-equal str_char #\space)
      (return size) 
-    (if (char-not-equal str_char #\space)
-     (setf size (concatenate 'string size (string str_char))))))size))
+    (setf size (concatenate 'string size (string str_char)))))size))
 
-(loop for i from 0 to (- (length input) 1) do (
-  if (and (>= (length (nth i input)) 7) (string-equal (subseq (nth i input) 2 7) "cd ..") )
-  (print (nth i input))
+(defun get-dir-index (dir_name)  (
+  loop for i from 0 to (- (length tree) 1) do (
+    if (string-equal (nth i tree) dir_name)
+     (return i))))
+
+(defun parse-input (i) 
+  (if (>= i (- (length input) 1)) i)
+  (if (and (>= (length (nth i input)) 7) (string-equal (subseq (nth i input) 2 7) "cd .."))
+  ;  ((lambda () 
+  ; (setq last_index i)""))
+  (parse-input (+ i 1))
   (if (string-equal (subseq (nth i input) 2 4) "cd") 
-  (print (nth i input))
-  (push (parse-size (nth i input)) (cdr tree))
-  )
-))
+  ((lambda () 
+  (setq last_index i)
+  ; (print (subseq (nth i input) 5 (length (nth i input))))
+  (get-dir-index (subseq (nth i input) 5 (length (nth i input))))))
+   (if (string-equal (subseq (nth i input) 0 3) "dir") 
+   ((lambda () 
+   (push (subseq (nth i input) 4 (length (nth i input))) (cdr tree))
+    (parse-input (+ i 1))
+   ))
+  (if (string-not-equal (subseq (nth i input) 2 4) "ls") 
+  ((lambda () 
+    (push (get-size (nth i input)) (cdr tree))
+    (parse-input (+ i 1))
+   ))(parse-input (+ i 1))
+  )))))
 
-(print tree)
-;; (defun make-tree (item)
-;;    "it creates a new node with item."
-;;    (cons (cons item nil) nil)
-;; )
 
-;; (defun first-child (tree)
-;;    (if (null tree)
-;;       nil
-;;       (cdr (car tree))
-;;    )
-;; )
+;; UTIL FUNCTIONS
+(defun insert-after (lst index newelt)
+  (push newelt (cdr (nthcdr index lst))) 
+  lst)
 
-;; (defun next-sibling (tree)
-;;    (cdr tree)
-;; )
+(defun remove-nth (list n)
+  (remove-if (constantly t) list :start n :end (1+ n)))
+;; -/- ;;
 
-;; (defun data (tree)
-;;    (car (car tree))
-;; )
+(setq dir_index (parse-input 0))
+(setq last_tree (list tree))
+(setq tree (list (nth dir_index tree)))
 
-;; (defun add-child (tree child)
-;;    (setf (car tree) (append (car tree) child))
-;;    tree
-;; )
+(parse-input (+ last_index 1))
+(setq last_tree (append last_tree (list tree)))
+(setq tree (list (nth dir_index tree)))
+(parse-input (+ last_index 1))
+(setq last_tree (append last_tree (list tree)))
 
-;; (defvar tr '((1 2 (3 4 5) ((7 8) (7 8 9)))))
-;; (defvar mytree (make-tree 10))
 
-;; (write (data mytree))
-;; (terpri)
-;; (write (first-child tr))
-;; (terpri)
-;; (defvar newtree (add-child tr mytree))
-;; (terpri)
-;; (write newtree)
+(print last_tree) 
+
